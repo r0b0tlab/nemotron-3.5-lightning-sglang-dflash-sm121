@@ -1,0 +1,561 @@
+{
+  "lanes": [
+    {
+      "lane_id": "canary",
+      "status": "PASS",
+      "infra_errors": 0,
+      "summary": {
+        "checks": {
+          "identity": true,
+          "needle": true,
+          "structured": true,
+          "tool_call": true,
+          "zh_arithmetic": true
+        },
+        "n": 5,
+        "passed": true
+      },
+      "artifacts": {
+        "canary.json": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/canary/canary.json"
+      }
+    },
+    {
+      "lane_id": "bfcl_mt",
+      "status": "ERROR",
+      "infra_errors": 1,
+      "summary": {
+        "log": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/bfcl_mt/bfcl_mt.log",
+        "project": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/bfcl_mt/bfcl-project",
+        "returncode": 1,
+        "status": "ERROR"
+      },
+      "artifacts": {
+        "log": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/bfcl_mt/bfcl_mt.log"
+      }
+    },
+    {
+      "lane_id": "bfcl_ast",
+      "status": "ERROR",
+      "infra_errors": 1,
+      "summary": {
+        "failed_cmd": [
+          "/home/<user>/projects/nemotron-3.5-lightning-sglang-dflash-sm121/.venv/bin/python3",
+          "/home/<user>/projects/nemotron-3.5-lightning-sglang-dflash-sm121/benchmark/scripts/bfcl/bfcl_ast_run.py",
+          "strip-errors"
+        ],
+        "log": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/bfcl_ast/bfcl_ast.log",
+        "returncode": 1,
+        "status": "ERROR"
+      },
+      "artifacts": {
+        "log": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/bfcl_ast/bfcl_ast.log"
+      }
+    },
+    {
+      "lane_id": "latency",
+      "status": "PASS",
+      "infra_errors": 0,
+      "summary": {
+        "drop_first_rep": true,
+        "failed": 0,
+        "method": "openai_chat_stream_c1_latency",
+        "nonstream": {
+          "e2el_ms_mean": 9924.310008000248,
+          "n_stable": 2,
+          "rows": [
+            {
+              "completion_tokens": 1031,
+              "e2el_ms": 9888.410539002507,
+              "elapsed_s": 9.888410539002507,
+              "http_status": 200,
+              "ok": true,
+              "prompt_tokens": 49,
+              "rep": 1
+            },
+            {
+              "completion_tokens": 1192,
+              "e2el_ms": 10790.072354000586,
+              "elapsed_s": 10.790072354000586,
+              "http_status": 200,
+              "ok": true,
+              "prompt_tokens": 49,
+              "rep": 2
+            },
+            {
+              "completion_tokens": 919,
+              "e2el_ms": 9058.54766199991,
+              "elapsed_s": 9.05854766199991,
+              "http_status": 200,
+              "ok": true,
+              "prompt_tokens": 49,
+              "rep": 3
+            }
+          ]
+        },
+        "output_tokens": 8192,
+        "reps": 5,
+        "stream": {
+          "e2el_ms_mean": 8655.134676499074,
+          "itl_ms_mean": 25.331394342381383,
+          "itl_ms_p50_mean": 25.302066249878408,
+          "itl_ms_p95_mean": 26.700071049936014,
+          "n_stable": 4,
+          "rows": [
+            {
+              "e2el_ms": 9512.81923300121,
+              "elapsed_s": 9.51281923300121,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "itl_ms_mean": 25.433116151768587,
+              "itl_ms_p50": 25.39118799904827,
+              "itl_ms_p95": 26.887389597686706,
+              "ok": true,
+              "rep": 1,
+              "stream_completion_chunks": 370,
+              "text": "Copper is among the best electrical conductors of all metals, second only to silver in pure form. Its high conductivity, approximately 5.96 × 10⁷ siemens per meter, stems from its atomic structure allowing free electron flow. This property makes copper the primary material for electrical wiring, printed circuit boards, and power transmission systems. While slightly less conductive than silver, copper offers an optimal balance of cost, durability, and performance, though its efficiency can decrease with impurities or cold-working.",
+              "ttft_ms": 99.97369499978959,
+              "usage": {
+                "completion_tokens": 931,
+                "prompt_tokens": 46,
+                "prompt_tokens_details": null,
+                "reasoning_tokens": 826,
+                "total_tokens": 977
+              }
+            },
+            {
+              "e2el_ms": 9312.132958999428,
+              "elapsed_s": 9.312132958999428,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "itl_ms_mean": 25.308198876370955,
+              "itl_ms_p50": 25.238898499083007,
+              "itl_ms_p95": 26.75402325075993,
+              "ok": true,
+              "rep": 2,
+              "stream_completion_chunks": 365,
+              "text": "Copper is renowned for its exceptional electrical conductivity, ranking second only to silver among pure metals at approximately 5.96 × 10⁷ siemens per meter. This high conductivity stems from its atomic structure, which allows free electrons to move easily through the metallic lattice. Because of this property, copper is the primary material used in electrical wiring, printed circuit boards, and power distribution systems, offering an optimal balance of performance, cost, and durability compared to other conductors.",
+              "ttft_ms": 99.6336229982262,
+              "usage": {
+                "completion_tokens": 935,
+                "prompt_tokens": 46,
+                "prompt_tokens_details": null,
+                "reasoning_tokens": 836,
+                "total_tokens": 981
+              }
+            },
+            {
+              "e2el_ms": 11396.260035999148,
+              "elapsed_s": 11.396260035999148,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "itl_ms_mean": 25.327223387893408,
+              "itl_ms_p50": 25.32877649900911,
+              "itl_ms_p95": 26.76994774992636,
+              "ok": true,
+              "rep": 3,
+              "stream_completion_chunks": 447,
+              "text": "Copper ranks as the second-most electrically conductive pure metal after silver, with a conductivity of about 5.96 × 10⁷ S/m (100% IACS). This high conductivity, paired with excellent thermal conductivity, ductility, and low cost, makes it the dominant material for electrical wiring, printed circuit boards, and power distribution. While minor impurities can reduce performance, annealed copper maintains the industry standard for efficient, reliable electrical transmission across countless industrial and consumer applications.",
+              "ttft_ms": 99.85736299859127,
+              "usage": {
+                "completion_tokens": 1198,
+                "prompt_tokens": 46,
+                "prompt_tokens_details": null,
+                "reasoning_tokens": 1096,
+                "total_tokens": 1244
+              }
+            },
+            {
+              "e2el_ms": 7420.8304089988815,
+              "elapsed_s": 7.4208304089988815,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "itl_ms_mean": 25.329851823528905,
+              "itl_ms_p50": 25.219375002052402,
+              "itl_ms_p95": 26.481249800417572,
+              "ok": true,
+              "rep": 4,
+              "stream_completion_chunks": 290,
+              "text": "Copper is among the highest electrical conductivity metals, surpassed only by silver. Its excellent conductivity stems from a lattice of positively charged ions surrounded by a sea of free electrons, allowing efficient charge flow. With a resistivity of approximately 1.68 × 10⁻⁸ Ω·m at 20°C, copper is extensively used in electrical wiring, motors, and electronics. Its performance can be optimized through high purity and controlled processing, though temperature and impurities may reduce conductivity.",
+              "ttft_ms": 100.1229899993632,
+              "usage": {
+                "completion_tokens": 734,
+                "prompt_tokens": 46,
+                "prompt_tokens_details": null,
+                "reasoning_tokens": 634,
+                "total_tokens": 780
+              }
+            },
+            {
+              "e2el_ms": 6491.315301998839,
+              "elapsed_s": 6.4913153019988385,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "itl_ms_mean": 25.360303281732264,
+              "itl_ms_p50": 25.421214999369113,
+              "itl_ms_p95": 26.795063398640195,
+              "ok": true,
+              "rep": 5,
+              "stream_completion_chunks": 253,
+              "text": "Copper is among the most electrically conductive pure metals, second only to silver, with a conductivity of approximately 5.96 × 10⁷ siemens per meter. This high conductivity stems from its atomic structure, which allows large numbers of free electrons to move easily through the material. Because of this property, copper is the primary material used in electrical wiring, power generation, transmission, and electronic components, offering an optimal balance of performance, cost, and reliability.",
+              "ttft_ms": 100.03221700026188,
+              "usage": {
+                "completion_tokens": 569,
+                "prompt_tokens": 46,
+                "prompt_tokens_details": null,
+                "reasoning_tokens": 471,
+                "total_tokens": 615
+              }
+            }
+          ],
+          "ttft_ms_mean": 99.91154824911064
+        }
+      },
+      "artifacts": {
+        "summary.json": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/latency/summary.json"
+      }
+    },
+    {
+      "lane_id": "concurrency",
+      "status": "PASS",
+      "infra_errors": 0,
+      "summary": {
+        "backend": "openai_portable",
+        "drop_first_rep": true,
+        "levels": [
+          1,
+          2,
+          4,
+          6
+        ],
+        "method": "openai_portable_concurrency_ladder",
+        "output_tokens": 8192,
+        "reps": 3,
+        "rows": [
+          {
+            "aggregate_output_tok_s": 112.25827957939083,
+            "completed": 4,
+            "concurrency": 1,
+            "failed": 0,
+            "mean_e2el_ms": 66622.78252950091,
+            "median_client_output_tok_s": 112.43626447539262,
+            "output_tokens": 8192,
+            "repetitions_present": 3,
+            "warmup_rep_dropped": 1
+          },
+          {
+            "aggregate_output_tok_s": 164.0999704672433,
+            "completed": 8,
+            "concurrency": 2,
+            "failed": 0,
+            "mean_e2el_ms": 88799.80075112508,
+            "median_client_output_tok_s": 85.53710344908626,
+            "output_tokens": 8192,
+            "repetitions_present": 3,
+            "warmup_rep_dropped": 1
+          },
+          {
+            "aggregate_output_tok_s": 237.9181144729592,
+            "completed": 16,
+            "concurrency": 4,
+            "failed": 0,
+            "mean_e2el_ms": 125296.43141325028,
+            "median_client_output_tok_s": 64.24671732194304,
+            "output_tokens": 8192,
+            "repetitions_present": 3,
+            "warmup_rep_dropped": 1
+          },
+          {
+            "aggregate_output_tok_s": 305.36249931004755,
+            "completed": 24,
+            "concurrency": 6,
+            "failed": 0,
+            "mean_e2el_ms": 148728.79298283305,
+            "median_client_output_tok_s": 52.81727572912897,
+            "output_tokens": 8192,
+            "repetitions_present": 3,
+            "warmup_rep_dropped": 1
+          }
+        ],
+        "total_failed": 0
+      },
+      "artifacts": {
+        "summary.json": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/concurrency/summary.json"
+      }
+    },
+    {
+      "lane_id": "throughput",
+      "status": "PASS",
+      "infra_errors": 0,
+      "summary": {
+        "backend": "openai_portable",
+        "decode": {
+          "mean_client_output_tok_s": 67.79109840803244,
+          "median_client_output_tok_s": 67.7837043069076,
+          "n_stable": 4,
+          "output_tokens_requested": 8192,
+          "reps": 5,
+          "rows": [
+            {
+              "client_output_tokens_per_second": 66.55273305767625,
+              "completion_tokens": 5785,
+              "elapsed_s": 86.9235527109995,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "decode",
+              "ok": true,
+              "prompt_tokens": 60,
+              "rep": 1,
+              "server_prompt_tokens_per_second": 0.6902617084633664
+            },
+            {
+              "client_output_tokens_per_second": 66.6089491244977,
+              "completion_tokens": 4842,
+              "elapsed_s": 72.69293486300012,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "decode",
+              "ok": true,
+              "prompt_tokens": 60,
+              "rep": 2,
+              "server_prompt_tokens_per_second": 0.8253897041449529
+            },
+            {
+              "client_output_tokens_per_second": 69.4167936357118,
+              "completion_tokens": 6418,
+              "elapsed_s": 92.45601336300024,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "decode",
+              "ok": true,
+              "prompt_tokens": 60,
+              "rep": 3,
+              "server_prompt_tokens_per_second": 0.6489572480745883
+            },
+            {
+              "client_output_tokens_per_second": 68.95845948931748,
+              "completion_tokens": 5447,
+              "elapsed_s": 78.98958358899836,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "decode",
+              "ok": true,
+              "prompt_tokens": 60,
+              "rep": 4,
+              "server_prompt_tokens_per_second": 0.7595938258415731
+            },
+            {
+              "client_output_tokens_per_second": 66.1801913826028,
+              "completion_tokens": 5006,
+              "elapsed_s": 75.64196922700285,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "decode",
+              "ok": true,
+              "prompt_tokens": 60,
+              "rep": 5,
+              "server_prompt_tokens_per_second": 0.7932104440583636
+            }
+          ]
+        },
+        "drop_first_rep": true,
+        "failed": 0,
+        "method": "openai_portable_c1_throughput",
+        "prefill": {
+          "mean_server_prompt_tok_s": 2113.3202819429403,
+          "median_prompt_tokens": 24541.0,
+          "median_server_prompt_tok_s": 2113.3202819429403,
+          "n_stable": 2,
+          "note": "prompt tok/s is e2e wall proxy (includes short decode); not pure prefill kernel metric",
+          "output_tokens": 8192,
+          "prompt_tokens_target": 14000,
+          "reps": 3,
+          "rows": [
+            {
+              "client_output_tokens_per_second": 41.855472981751035,
+              "completion_tokens": 533,
+              "elapsed_s": 12.734296425998764,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "prefill",
+              "ok": true,
+              "prompt_tokens": 24541,
+              "rep": 1,
+              "server_prompt_tokens_per_second": 1927.1579032742065
+            },
+            {
+              "client_output_tokens_per_second": 54.53559678556938,
+              "completion_tokens": 694,
+              "elapsed_s": 12.725633180998557,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "prefill",
+              "ok": true,
+              "prompt_tokens": 24541,
+              "rep": 2,
+              "server_prompt_tokens_per_second": 1928.469856937548
+            },
+            {
+              "client_output_tokens_per_second": 50.66257904971468,
+              "completion_tokens": 541,
+              "elapsed_s": 10.678493084000365,
+              "finish_reason": "stop",
+              "http_status": 200,
+              "kind": "prefill",
+              "ok": true,
+              "prompt_tokens": 24541,
+              "rep": 3,
+              "server_prompt_tokens_per_second": 2298.1707069483327
+            }
+          ]
+        }
+      },
+      "artifacts": {
+        "summary.json": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/throughput/summary.json"
+      }
+    },
+    {
+      "lane_id": "niah",
+      "status": "PASS",
+      "infra_errors": 0,
+      "summary": {
+        "all_passed": true,
+        "code": "R0B0-NIAH-7K3M",
+        "depth_policy": "frac_of_max_context",
+        "depths": [
+          10456,
+          20912,
+          37641
+        ],
+        "fractions": [
+          0.25,
+          0.5,
+          0.9
+        ],
+        "generation_reserve": 8192,
+        "kv_cache_size_tokens": null,
+        "marker": "R0B0BENCH_NIAH_SLOT",
+        "max_model_len": 50016,
+        "note": "Depths are always 25/50/90% of (max_model_len - generation_reserve). This is the standard max-context capacity package; physical KV shortfall surfaces as infra ERROR.",
+        "pass_count": 3,
+        "rows": [
+          {
+            "depth": 10456,
+            "elapsed_s": 4.49431090300277,
+            "finish_reason": "stop",
+            "fraction_of_usable": 0.25,
+            "http_status": 200,
+            "infra_errors": 0,
+            "max_model_len": 50016,
+            "needle_fraction_effective": 0.49904361132364194,
+            "passed": true,
+            "prompt_sha256": "d5ea00c7c10367eab259adb782bd9372d5f020ba0e893aad3e953ff0947bbb92",
+            "prompt_tokens_constructed": 10456,
+            "response_text": "The user is asking for a secret verification code that appears exactly once in the archival record. I need to find it. The text provided is a long archival record that repeats the same sentence over and over: \"The archival record contains neutral observations about weather, tools, books, roads, and ordinary daily events.\" This repeats many times. At the very end, there's a line that says: \"IMPORTANT SECRET VERIFICATION CODE: R0B0-NIAH-7K3M\". Then the archival record continues again. So the code ",
+            "status": "PASS",
+            "usage": {
+              "completion_tokens": 188,
+              "prompt_tokens": 10456,
+              "prompt_tokens_details": null,
+              "reasoning_tokens": 0,
+              "total_tokens": 10644
+            }
+          },
+          {
+            "depth": 20912,
+            "elapsed_s": 6.927576996000425,
+            "finish_reason": "stop",
+            "fraction_of_usable": 0.5,
+            "http_status": 200,
+            "infra_errors": 0,
+            "max_model_len": 50016,
+            "needle_fraction_effective": 0.499521805661821,
+            "passed": true,
+            "prompt_sha256": "a44ee7c89a28c47a1c2b1ddd213e351e984a428e5c57a751478239cdae227074",
+            "prompt_tokens_constructed": 20912,
+            "response_text": "The user is asking for a secret verification code that appears exactly once in the archival record. I need to find it carefully.\n\nLooking at the text, I see a pattern: the archival record contains neutral observations about weather, tools, books, roads, and ordinary daily events. This repeats many times. But somewhere in the text, there's a line that says: \"IMPORTANT SECRET VERIFICATION CODE: R0B0-NIAH-7K3M\"\n\nThis appears to be the secret verification code. It's embedded in the text. The instruc",
+            "status": "PASS",
+            "usage": {
+              "completion_tokens": 199,
+              "prompt_tokens": 20912,
+              "prompt_tokens_details": null,
+              "reasoning_tokens": 0,
+              "total_tokens": 21111
+            }
+          },
+          {
+            "depth": 37641,
+            "elapsed_s": 9.134620733999327,
+            "finish_reason": "stop",
+            "fraction_of_usable": 0.9,
+            "http_status": 200,
+            "infra_errors": 0,
+            "max_model_len": 50016,
+            "needle_fraction_effective": 0.49974761563189074,
+            "passed": true,
+            "prompt_sha256": "9f81639409f998561ea8f2d6bae5da131a796770976efbe672dd4709d616d64b",
+            "prompt_tokens_constructed": 37641,
+            "response_text": "The user is asking me to provide a secret verification code that appears exactly once in the archival record. I need to look carefully at the text to find this code.\n\nLooking through the provided text, I can see that it's mostly repetitive content about \"The archival record contains neutral observations about weather, tools, books, roads, and ordinary daily events.\" This pattern repeats many times.\n\nHowever, towards the end of the text, I notice something different. Let me search for any code or",
+            "status": "PASS",
+            "usage": {
+              "completion_tokens": 220,
+              "prompt_tokens": 37641,
+              "prompt_tokens_details": null,
+              "reasoning_tokens": 0,
+              "total_tokens": 37861
+            }
+          }
+        ],
+        "template_source": "transformers_chat_template (render_failed=Client error '404 Not Found' for url 'http://127.0.0.1:30000/v1/chat/completions/render'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)",
+        "tokenizer": {
+          "backend": "tokenizers",
+          "path": "/home/<user>/models/nemotron-lightning/Weights/tokenizer.json"
+        },
+        "total": 3
+      },
+      "artifacts": {
+        "niah.json": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes/niah/niah.json"
+      }
+    },
+    {
+      "lane_id": "qa",
+      "status": "ERROR",
+      "infra_errors": 1,
+      "summary": {
+        "error": "missing datasets/qa/arc_easy_test.jsonl"
+      },
+      "artifacts": {}
+    },
+    {
+      "lane_id": "ifeval",
+      "status": "ERROR",
+      "infra_errors": 1,
+      "summary": {
+        "error": "missing datasets/ifeval/input_data.jsonl"
+      },
+      "artifacts": {}
+    },
+    {
+      "lane_id": "humaneval",
+      "status": "NOT_RUN",
+      "infra_errors": 0,
+      "summary": {
+        "note": "lane never reached in this run; replaced via reconciliation"
+      }
+    },
+    {
+      "lane_id": "gsm8k",
+      "status": "NOT_RUN",
+      "infra_errors": 0,
+      "summary": {
+        "note": "lane never reached in this run; replaced via reconciliation"
+      }
+    }
+  ],
+  "infra_errors_total": 4,
+  "invalid_for_publish": true,
+  "reconstruction": {
+    "status": "RECONSTRUCTED_FROM_LANE_ARTIFACTS",
+    "source_root": "/home/<user>/artifacts/nemotron-lightning-optimization/sglang-dflash-20260819/r0b0bench-out/thinkon-core-subset/20260820T111136Z-88ccd5be/lanes",
+    "note": "Primary run was terminated before report aggregation; per-lane results are intact."
+  }
+}

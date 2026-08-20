@@ -1,0 +1,48 @@
+{
+  "serve_profile": "DFlash block-size 4",
+  "image": {
+    "tag": "lmsysorg/sglang:dev-nemotron3-5-lightning",
+    "index_digest": "sha256:a04d9a1a7ffe371b05230aecab001d4ba2bfa0e5c137bc56409ecc4cbc3ac864",
+    "arm64_manifest_digest": "sha256:6da24ff76c85cf49276c010f8fff4cf88ed668e560b2967629549105e7107e62",
+    "arm64_image_id": "sha256:323c95b7d39569328eceac7a23c4271992df149e9835303da70acc3e9afa90be",
+    "source_commit": "d59c1ddf70ee17fcc41c053ed38bd60bc6cc28cc"
+  },
+  "model": {
+    "target": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4 @ e8f3c7c4de75ad84fe1bcef95d38eca76214480b",
+    "draft": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DFlash @ 7fc1f1ff4b82b917efbd0710df0872c2bb89caa5"
+  },
+  "resolved_runtime": {
+    "context_length": 50016,
+    "mamba_backend": "flashinfer",
+    "mamba_ssm_dtype": "float16",
+    "mem_fraction_static": 0.70,
+    "max_running_requests": 6,
+    "cuda_graph_max_bs_decode": 8,
+    "kv_cache_dtype": "fp8_e4m3",
+    "attention_backend": "flashinfer",
+    "moe_runner_backend": "marlin",
+    "reasoning_parser": "nemotron_3",
+    "tool_call_parser": "qwen3_coder",
+    "speculative_algorithm": "DFLASH",
+    "speculative_dflash_block_size": 4,
+    "enable_metrics": true,
+    "disable_flashinfer_autotune": true,
+    "cuda_graphs": "captured (target_verify 5.15s, draft_decode 0.85s with warm JIT cache)"
+  },
+  "admission_gates": {
+    "identity": "PASS (served id + max_model_len 50016)",
+    "arithmetic_5of5": "PASS",
+    "thinking_on": "PASS (reasoning_content 2042 chars + content 474 chars)",
+    "tool_call": "PASS (structured, args parse)",
+    "spec_counters": "PASS (sglang:spec_accept_length 2.475, accept_rate 0.4917 at warmup)",
+    "native_backends": "Marlin W4A16_NVFP4 MoE + FP8 KV + FlashInfer attn/mamba; SM121 (12,1); zero fallback markers"
+  },
+  "first_boot_requirement": "TVM-FFI JIT compiles the sm_121a FP4 Marlin kernel during first CUDA-graph capture (~10-15 min of nvcc/ptxas on aarch64, CPU-bound). Persist /root/.cache/tvm-ffi + /root/.cache/sglang via host mounts (serve.sh JIT_CACHE); warm-cache boots are ~210-250 s. The transient NVRM memdesc OOM bursts during first-boot compilation are nvcc allocation transients, not fatal.",
+  "container_envelope": "no --memory cap (unified memory not cgroup-charged on this node); --cpus 14; --ipc=host; --network=host; memlock -1; IPC_LOCK; SYS_NICE",
+  "known_notes": [
+    "prefill CUDA graph auto-disabled (breakable graph incompatible with NemotronH hybrid Mamba2 prefill) — expected",
+    "FP8 KV scaling factors default to 1.0 (checkpoint ships no per-layer scales) — quality gates pass; keep documented",
+    "weight_scale_2 differs across fused parallel layers warning — informational, quality gates pass",
+    "DFlash draft config block_size=16 overridden to 4 per NVIDIA DGX Spark guidance"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "mode": "prefill_proxy_14k",
+  "rows": [
+    {
+      "wall_s": 1.5204136371612549,
+      "out_tok": 11,
+      "ptok": 7017,
+      "ok": true,
+      "rep": 1,
+      "prompt_tok_s": 4615.2
+    },
+    {
+      "wall_s": 0.23395419120788574,
+      "out_tok": 11,
+      "ptok": 7017,
+      "ok": true,
+      "rep": 2,
+      "prompt_tok_s": 29993.1
+    },
+    {
+      "wall_s": 0.2087411880493164,
+      "out_tok": 11,
+      "ptok": 7017,
+      "ok": true,
+      "rep": 3,
+      "prompt_tok_s": 33615.8
+    }
+  ]
+}

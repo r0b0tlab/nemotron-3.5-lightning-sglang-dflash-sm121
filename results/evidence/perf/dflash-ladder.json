@@ -1,0 +1,123 @@
+{
+  "mode": "concurrency_ladder_2048",
+  "levels": {
+    "1": {
+      "median": 74.13,
+      "rows": [
+        74.52,
+        73.71,
+        74.13
+      ]
+    },
+    "2": {
+      "median": 111.28,
+      "rows": [
+        105.81,
+        111.28,
+        112.22
+      ]
+    },
+    "4": {
+      "median": 161.26,
+      "rows": [
+        161.26,
+        158.32,
+        161.3
+      ]
+    },
+    "6": {
+      "median": 190.49,
+      "rows": [
+        194.61,
+        190.29,
+        190.49
+      ]
+    }
+  },
+  "rows": [
+    {
+      "level": 1,
+      "rep": 1,
+      "wall_s": 20.8,
+      "agg_tok_s": 74.52,
+      "n_ok": 1
+    },
+    {
+      "level": 1,
+      "rep": 2,
+      "wall_s": 27.6,
+      "agg_tok_s": 73.71,
+      "n_ok": 1
+    },
+    {
+      "level": 1,
+      "rep": 3,
+      "wall_s": 18.6,
+      "agg_tok_s": 74.13,
+      "n_ok": 1
+    },
+    {
+      "level": 2,
+      "rep": 1,
+      "wall_s": 29.1,
+      "agg_tok_s": 105.81,
+      "n_ok": 2
+    },
+    {
+      "level": 2,
+      "rep": 2,
+      "wall_s": 27.2,
+      "agg_tok_s": 111.28,
+      "n_ok": 2
+    },
+    {
+      "level": 2,
+      "rep": 3,
+      "wall_s": 28.2,
+      "agg_tok_s": 112.22,
+      "n_ok": 2
+    },
+    {
+      "level": 4,
+      "rep": 1,
+      "wall_s": 39.2,
+      "agg_tok_s": 161.26,
+      "n_ok": 4
+    },
+    {
+      "level": 4,
+      "rep": 2,
+      "wall_s": 41.8,
+      "agg_tok_s": 158.32,
+      "n_ok": 4
+    },
+    {
+      "level": 4,
+      "rep": 3,
+      "wall_s": 39.5,
+      "agg_tok_s": 161.3,
+      "n_ok": 4
+    },
+    {
+      "level": 6,
+      "rep": 1,
+      "wall_s": 50.9,
+      "agg_tok_s": 194.61,
+      "n_ok": 6
+    },
+    {
+      "level": 6,
+      "rep": 2,
+      "wall_s": 53.1,
+      "agg_tok_s": 190.29,
+      "n_ok": 6
+    },
+    {
+      "level": 6,
+      "rep": 3,
+      "wall_s": 51.4,
+      "agg_tok_s": 190.49,
+      "n_ok": 6
+    }
+  ]
+}

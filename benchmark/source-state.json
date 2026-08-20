@@ -1,0 +1,16 @@
+{
+  "benchmark_package": "r0b0bench",
+  "version": "1.0.0rc2",
+  "base_commit": "e0f0bf667d3ea8e97f2a9c4453f94201173c7082",
+  "corrected_tree_patch_sha256": "a243d10350cf83aa6dc7019d15198e2fae59cfad953a98506a638d973b961200",
+  "source_patch": "thinking-allowed.patch",
+  "template_controls": {"thinking": true, "enable_thinking": true},
+  "profiles": ["core", "core-subset", "systems"],
+  "private_data_policy": {
+    "weights_in_tree": false,
+    "datasets_in_tree": false,
+    "credentials_in_tree": false,
+    "raw_bfcl_traces_in_tree": false,
+    "public_release": false
+  }
+}

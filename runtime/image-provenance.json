@@ -1,0 +1,38 @@
+{
+  "resolution": "most-recent-release gate",
+  "verdict": "v0.5.17 AND dev-20260818-c0b6474b both rejected at live admission (quant-config load); selected the official day-0 Lightning image (dev-nemotron3-5-lightning).",
+  "root_cause": "The Lightning checkpoint stores ModelOpt quant metadata solely in hf_quant_config.json (quant_algo MIXED_PRECISION: W4A16_NVFP4 experts + FP8 layers + FP8 KV). v0.5.17 and dev@c0b6474b both fall through to ModelOptFp4Config.from_config, which rejects MIXED_PRECISION (ValueError at model load). Upstream main gained resolve_checkpoint_quant_spec() only after 2026-08-18 (observed on main a3e4592f, 2026-08-20); no published cu13 image carries it yet. The purpose-built day-0 image (dev-nemotron3-5-lightning) is the newest published image that serves this checkpoint (proven by the prior MTP EAGLE s=3 campaign).",
+  "evidence": {
+    "v0.5.17_failure_log": "modelopt_quant.py:1357 ValueError: ModelOpt currently only supports: FP8, NVFP4, NVFP4_AWQ",
+    "dev_c0b6474b_failure_log": "modelopt_quant.py:1514 ValueError: ModelOpt currently only supports: FP8, NVFP4, NVFP4_AWQ",
+    "main_fix_observed": "python/sglang/srt/model_loader/weight_utils.py :: resolve_checkpoint_quant_spec (main a3e4592f 2026-08-20; NOT in c0b6474b image)",
+    "prior_campaign_proof": "dev-cu13-nemotron3-5-lightning @ sha256:e5e3cdb9... (d59c1ddf) served this checkpoint with MTP EAGLE s=3 (2026-08-12)"
+  },
+  "candidates": {
+    "v0.5.17": {
+      "tag": "lmsysorg/sglang:v0.5.17",
+      "index_digest": "sha256:16aba8925507e631e1dc1e23d95d026533602591775f6a8db68b74ee99746155",
+      "released": "2026-08-07",
+      "status": "REJECTED (live admission: quant-config load failure)"
+    },
+    "dev-20260818": {
+      "tag": "lmsysorg/sglang:dev",
+      "index_digest": "sha256:51e576f02368480c055c7aadb67590d82b172e2392123ce4cf4cc8251b2d8caf",
+      "arm64_image_id_local": "sha256:2ab8026c30472421e5022e14f36d7053800ba84bae5403cd9f8062f4366b5364",
+      "commit": "c0b6474b",
+      "pushed": "2026-08-18",
+      "status": "REJECTED (live admission: quant-config load failure)"
+    },
+    "day0-lightning": {
+      "tag": "lmsysorg/sglang:dev-nemotron3-5-lightning",
+      "index_digest": "sha256:a04d9a1a7ffe371b05230aecab001d4ba2bfa0e5c137bc56409ecc4cbc3ac864",
+      "arm64_manifest_digest": "sha256:6da24ff76c85cf49276c010f8fff4cf88ed668e560b2967629549105e7107e62",
+      "arm64_image_id_local": "sha256:323c95b7d39569328eceac7a23c4271992df149e9835303da70acc3e9afa90be",
+      "prior_pinned_digest_20260812": "sha256:e5e3cdb9afefc182ac2427345c27e17ec1c8eddb568732fb3343fd832cee22f1",
+      "note": "tag moved since the 2026-08-12 pin; evidence below binds to the digests above",
+      "status": "SELECTED (live admission pending)"
+    }
+  },
+  "selected": "dev-nemotron3-5-lightning",
+  "selected_rationale": "Newest PUBLISHED image that carries day-0 Lightning support. Both newer-numbered and newer-committed candidates were tested live and rejected with the same root cause. When an upstream image with resolve_checkpoint_quant_spec is published, re-run the gate before any re-release."
+}

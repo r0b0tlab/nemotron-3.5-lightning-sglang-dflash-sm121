@@ -1,0 +1,47 @@
+Metadata-Version: 2.4
+Name: r0b0bench
+Version: 1.0.0rc2
+Summary: Reproducible OpenAI-compatible endpoint benchmark suite (BFCL + quality + systems)
+Author: r0b0tlab
+License: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: httpx>=0.27
+Requires-Dist: pydantic>=2.6
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: transformers>=4.44
+Requires-Dist: jinja2>=3.1
+Requires-Dist: sentencepiece>=0.2
+Requires-Dist: protobuf>=4.0
+Provides-Extra: bfcl
+Requires-Dist: bfcl-eval==2025.12.17; extra == "bfcl"
+Provides-Extra: full
+Requires-Dist: bfcl-eval==2025.12.17; extra == "full"
+Requires-Dist: lm-eval==0.4.12; extra == "full"
+Requires-Dist: datasets>=2.18; extra == "full"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"
+Dynamic: license-file
+
+# r0b0bench implementation snapshot
+
+This directory contains the exact model-neutral benchmark client source used for the NVIDIA Nemotron 3.5 Lightning evaluation.
+
+- Package version: `1.0.0rc2`
+- Base commit: `e0f0bf667d3ea8e97f2a9c4453f94201173c7082`
+- Corrected source patch: `../benchmark/thinking-allowed.patch`
+- Current patch SHA-256: `a243d10350cf83aa6dc7019d15198e2fae59cfad953a98506a638d973b961200`
+
+Install from the repository root with:
+
+```bash
+python -m pip install -e './benchmark[bfcl,dev]'
+```
+
+The three supported profiles are `core`, `core-subset`, and `systems`. The `core-subset` profile contains the mandatory systems block plus QA@400, IFEval@200, HumanEval@164, and GSM8K@200.
+
+Native-thinking runs must set the exact JSON request controls through `R0B0BENCH_CHAT_TEMPLATE_KWARGS` and must record effective response ceilings. Use `scripts/run_benchmark.sh` from the repository root rather than inventing a new invocation.
+
+Benchmark outputs belong outside the checkout. This snapshot contains no datasets, weights, credentials, or raw BFCL result traces.

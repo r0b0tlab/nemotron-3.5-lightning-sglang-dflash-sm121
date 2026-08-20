@@ -1,0 +1,12 @@
+{
+  "depth_tokens": 751611,
+  "target_depth": 749808,
+  "needle": "R0B0-NIAH-7K3M",
+  "answer": "R0B0-NIAH-7K3M",
+  "passed": true,
+  "wall_s": 463.0,
+  "prompt_tokens": 751662,
+  "completion_tokens": 13,
+  "finish_reason": "stop",
+  "invalid_for_publish": true
+}

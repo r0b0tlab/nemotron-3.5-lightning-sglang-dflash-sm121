@@ -1,0 +1,515 @@
+diff --git a/scripts/bfcl/bfcl_ast_run.py b/scripts/bfcl/bfcl_ast_run.py
+index d16afa3..7bf42ea 100644
+--- a/scripts/bfcl/bfcl_ast_run.py
++++ b/scripts/bfcl/bfcl_ast_run.py
+@@ -48,7 +48,24 @@ def _patch_timeout() -> None:
+     OpenAICompletionsHandler._build_client_kwargs = build  # type: ignore[method-assign]
+ 
+ 
++def _patch_template_kwargs() -> None:
++    raw = os.environ.get("R0B0BENCH_CHAT_TEMPLATE_KWARGS")
++    template_kwargs = json.loads(raw) if raw else None
++    original = OpenAICompletionsHandler.generate_with_backoff
++
++    def generate(self, **kwargs):  # type: ignore[no-untyped-def]
++        kwargs.setdefault("max_tokens", int(os.environ.get("BFCL_MAX_TOKENS", "8192")))
++        if template_kwargs is not None:
++            extra_body = dict(kwargs.get("extra_body") or {})
++            extra_body["chat_template_kwargs"] = template_kwargs
++            kwargs["extra_body"] = extra_body
++        return original(self, **kwargs)
++
++    OpenAICompletionsHandler.generate_with_backoff = generate  # type: ignore[method-assign]
++
++
+ def register_model() -> None:
++    _patch_template_kwargs()
+     _patch_timeout()
+     MODEL_CONFIG_MAPPING[REGISTRY] = ModelConfig(
+         model_name=MODEL_NAME,
+diff --git a/scripts/bfcl/bfcl_run.py b/scripts/bfcl/bfcl_run.py
+index ad82342..37659c6 100644
+--- a/scripts/bfcl/bfcl_run.py
++++ b/scripts/bfcl/bfcl_run.py
+@@ -52,7 +52,24 @@ def _patch_timeout() -> None:
+     OpenAICompletionsHandler._build_client_kwargs = build  # type: ignore[method-assign]
+ 
+ 
++def _patch_template_kwargs() -> None:
++    raw = os.environ.get("R0B0BENCH_CHAT_TEMPLATE_KWARGS")
++    template_kwargs = json.loads(raw) if raw else None
++    original = OpenAICompletionsHandler.generate_with_backoff
++
++    def generate(self, **kwargs):  # type: ignore[no-untyped-def]
++        kwargs.setdefault("max_tokens", int(os.environ.get("BFCL_MAX_TOKENS", "8192")))
++        if template_kwargs is not None:
++            extra_body = dict(kwargs.get("extra_body") or {})
++            extra_body["chat_template_kwargs"] = template_kwargs
++            kwargs["extra_body"] = extra_body
++        return original(self, **kwargs)
++
++    OpenAICompletionsHandler.generate_with_backoff = generate  # type: ignore[method-assign]
++
++
+ def register_model() -> None:
++    _patch_template_kwargs()
+     _patch_timeout()
+     MODEL_CONFIG_MAPPING[REGISTRY] = ModelConfig(
+         model_name=MODEL_NAME,
+diff --git a/src/r0b0bench/cli.py b/src/r0b0bench/cli.py
+index e320433..8b774b4 100644
+--- a/src/r0b0bench/cli.py
++++ b/src/r0b0bench/cli.py
+@@ -202,7 +202,7 @@ def cmd_run(args: argparse.Namespace) -> int:
+         lines.append(f"| {r['lane_id']} | {r['status']} | {r.get('infra_errors', 0)} |")
+     (run_dir / "REPORT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+     print(f"report: {run_dir / 'report.json'}")
+-    if report["infra_errors_total"]:
++    if report["infra_errors_total"] or not lane_statuses_complete:
+         return 2
+     return 0
+ 
+diff --git a/src/r0b0bench/config.py b/src/r0b0bench/config.py
+index e3e7867..a1da6aa 100644
+--- a/src/r0b0bench/config.py
++++ b/src/r0b0bench/config.py
+@@ -2,6 +2,7 @@ from __future__ import annotations
+ 
+ import json
+ import math
++import os
+ from pathlib import Path
+ from typing import Any
+ 
+@@ -29,6 +30,19 @@ def wilson_ci(k: int, n: int, z: float = 1.96) -> dict[str, float] | None:
+     return {"low": max(0.0, centre - margin), "high": min(1.0, centre + margin)}
+ 
+ 
++def chat_template_kwargs() -> dict[str, Any]:
++    """Return the explicitly selected serving-template controls for this run."""
++    raw = os.environ.get("R0B0BENCH_CHAT_TEMPLATE_KWARGS")
++    if raw:
++        try:
++            parsed = json.loads(raw)
++            if isinstance(parsed, dict):
++                return parsed
++        except (TypeError, ValueError):
++            pass
++    return {"thinking": False, "enable_thinking": False}
++
++
+ def load_profile(name: str) -> dict[str, Any]:
+     key = name.replace("_", "-")
+     allowed = ("core", "core-subset", "systems")
+diff --git a/src/r0b0bench/endpoint.py b/src/r0b0bench/endpoint.py
+index ca6c2c6..2390712 100644
+--- a/src/r0b0bench/endpoint.py
++++ b/src/r0b0bench/endpoint.py
+@@ -173,13 +173,16 @@ class Endpoint:
+                     continue
+                 delta = choices[0].get("delta") or {}
+                 content = delta.get("content") or ""
+-                # also count reasoning if present for timing only
+-                if not content and delta.get("reasoning_content"):
+-                    content = ""  # don't measure reasoning as completion tokens by default
+-                if content:
++                reasoning = delta.get("reasoning") or delta.get("reasoning_content") or ""
++                # Nemotron exposes reasoning in `delta.reasoning`; count any
++                # nonempty generated channel for TTFT/event timing, while only
++                # retaining visible content in assembled text.
++                generated = content or reasoning
++                if generated:
+                     if ttft is None:
+                         ttft = now - t0
+                     token_times.append(now)
++                if content:
+                     texts.append(content)
+                 if choices[0].get("finish_reason"):
+                     finish = choices[0]["finish_reason"]
+diff --git a/src/r0b0bench/lanes/canary.py b/src/r0b0bench/lanes/canary.py
+index 532b081..ec7681f 100644
+--- a/src/r0b0bench/lanes/canary.py
++++ b/src/r0b0bench/lanes/canary.py
+@@ -1,11 +1,12 @@
+ from __future__ import annotations
+ 
+ import json
++import os
+ import time
+ from pathlib import Path
+ from typing import Any
+ 
+-from r0b0bench.config import LaneResult, write_json
++from r0b0bench.config import LaneResult, chat_template_kwargs, write_json
+ from r0b0bench.endpoint import Endpoint
+ 
+ 
+@@ -74,6 +75,9 @@ def run_canary(ep: Endpoint, out_dir: Path, cfg: dict[str, Any] | None = None) -
+             "expect": "A9Q7",
+         },
+     ]
++    allowed_tokens = int(os.environ.get("R0B0BENCH_CANARY_MAX_TOKENS", "8192"))
++    for case in cases:
++        case["max_tokens"] = allowed_tokens
+     results = []
+     checks: dict[str, bool] = {}
+     for case in cases:
+@@ -81,6 +85,7 @@ def run_canary(ep: Endpoint, out_dir: Path, cfg: dict[str, Any] | None = None) -
+             "messages": case["messages"],
+             "temperature": 0,
+             "max_tokens": case["max_tokens"],
++            "chat_template_kwargs": chat_template_kwargs(),
+         }
+         for k in ("tools", "tool_choice"):
+             if k in case:
+diff --git a/src/r0b0bench/lanes/concurrency.py b/src/r0b0bench/lanes/concurrency.py
+index 538f857..b4aec25 100644
+--- a/src/r0b0bench/lanes/concurrency.py
++++ b/src/r0b0bench/lanes/concurrency.py
+@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
+ from pathlib import Path
+ from typing import Any
+ 
+-from r0b0bench.config import LaneResult, write_json
++from r0b0bench.config import LaneResult, chat_template_kwargs, write_json
+ from r0b0bench.endpoint import Endpoint
+ 
+ 
+@@ -16,7 +16,7 @@ def _one(ep: Endpoint, prompt: str, max_tokens: int, temperature: float) -> dict
+             "messages": [{"role": "user", "content": prompt}],
+             "temperature": temperature,
+             "max_tokens": max_tokens,
+-            "chat_template_kwargs": {"thinking": False},
++            "chat_template_kwargs": chat_template_kwargs(),
+         }
+     )
+     usage = body.get("usage") or {}
+@@ -38,7 +38,7 @@ def run_concurrency(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneRes
+     levels = [int(x) for x in (cfg.get("levels") or [1, 2, 4, 6])]
+     reps = int(cfg.get("reps") or 3)
+     drop_first = bool(cfg.get("drop_first_rep", True))
+-    out_tok = int(cfg.get("output_tokens") or 512)
++    out_tok = int(cfg.get("output_tokens") or 8192)
+     temperature = float(cfg.get("temperature") or 0)
+     # short prompt; concurrency measures decode scaling under load
+     prompt = str(
+diff --git a/src/r0b0bench/lanes/latency.py b/src/r0b0bench/lanes/latency.py
+index a5578b6..9ed9964 100644
+--- a/src/r0b0bench/lanes/latency.py
++++ b/src/r0b0bench/lanes/latency.py
+@@ -5,7 +5,7 @@ import time
+ from pathlib import Path
+ from typing import Any
+ 
+-from r0b0bench.config import LaneResult, write_json
++from r0b0bench.config import LaneResult, chat_template_kwargs, write_json
+ from r0b0bench.endpoint import Endpoint
+ 
+ 
+@@ -15,7 +15,7 @@ def run_latency(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+     out_dir.mkdir(parents=True, exist_ok=True)
+     reps = int(cfg.get("reps") or 5)
+     drop_first = bool(cfg.get("drop_first_rep", True))
+-    max_tokens = int(cfg.get("output_tokens") or 128)
++    max_tokens = int(cfg.get("output_tokens") or 8192)
+     prompt = str(
+         cfg.get("prompt")
+         or "Write a short factual paragraph about copper conductivity. Keep it under 80 words."
+@@ -24,12 +24,13 @@ def run_latency(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+ 
+     stream_rows = []
+     for rep in range(1, reps + 1):
++        rep_prompt = f"[r0b0bench-latency-rep-{rep}] {prompt}"
+         status, stats = ep.chat_completions_stream(
+             {
+-                "messages": [{"role": "user", "content": prompt}],
++                "messages": [{"role": "user", "content": rep_prompt}],
+                 "temperature": temperature,
+                 "max_tokens": max_tokens,
+-                "chat_template_kwargs": {"thinking": False},
++                "chat_template_kwargs": chat_template_kwargs(),
+             }
+         )
+         row = {"rep": rep, "http_status": status, **stats}
+@@ -38,12 +39,13 @@ def run_latency(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+ 
+     nonstream_rows = []
+     for rep in range(1, min(3, reps) + 1):
++        rep_prompt = f"[r0b0bench-latency-nonstream-rep-{rep}] {prompt}"
+         status, body, elapsed = ep.chat_completions(
+             {
+-                "messages": [{"role": "user", "content": prompt}],
++                "messages": [{"role": "user", "content": rep_prompt}],
+                 "temperature": temperature,
+                 "max_tokens": max_tokens,
+-                "chat_template_kwargs": {"thinking": False},
++                "chat_template_kwargs": chat_template_kwargs(),
+             }
+         )
+         usage = body.get("usage") or {}
+@@ -88,7 +90,13 @@ def run_latency(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+             "e2el_ms_mean": mean_of(ns, "e2el_ms"),
+             "rows": nonstream_rows,
+         },
+-        "failed": sum(1 for r in stream_rows if not r.get("ok"))
++        "failed": sum(
++            1
++            for r in stream_rows
++            if not r.get("ok")
++            or r.get("ttft_ms") is None
++            or int(r.get("stream_completion_chunks") or 0) <= 0
++        )
+         + sum(1 for r in nonstream_rows if not r.get("ok")),
+     }
+     write_json(out_dir / "summary.json", summary)
+diff --git a/src/r0b0bench/lanes/niah.py b/src/r0b0bench/lanes/niah.py
+index 26e1f71..1c23be9 100644
+--- a/src/r0b0bench/lanes/niah.py
++++ b/src/r0b0bench/lanes/niah.py
+@@ -6,7 +6,7 @@ import time
+ from pathlib import Path
+ from typing import Any
+ 
+-from r0b0bench.config import LaneResult, write_json
++from r0b0bench.config import LaneResult, chat_template_kwargs, write_json
+ from r0b0bench.endpoint import Endpoint
+ 
+ 
+@@ -90,7 +90,7 @@ def run_niah(
+         )
+ 
+     fractions = list(cfg.get("fractions") or [0.25, 0.5, 0.9])
+-    gen_reserve = int(cfg.get("generation_reserve") or 64)
++    gen_reserve = int(cfg.get("generation_reserve") or 8192)
+     needle_frac = float(cfg.get("needle_fraction") or 0.5)
+     code = str(cfg.get("code") or "R0B0-NIAH-7K3M")
+     # Always max-context against advertised max_model_len (NIAH is the capacity test).
+@@ -126,7 +126,7 @@ def run_niah(
+     messages = [{"role": "user", "content": instruction}]
+     template_source = "unknown"
+     try:
+-        rendered = ep.chat_render(messages, chat_template_kwargs={"thinking": False})
++        rendered = ep.chat_render(messages, chat_template_kwargs=chat_template_kwargs())
+         base_ids = list(rendered.get("token_ids") or [])
+         if not base_ids:
+             raise RuntimeError("render returned empty token_ids")
+@@ -139,7 +139,8 @@ def run_niah(
+             hf = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+             try:
+                 text = hf.apply_chat_template(
+-                    messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
++                    messages, tokenize=False, add_generation_prompt=True,
++                    enable_thinking=bool(chat_template_kwargs().get("enable_thinking", chat_template_kwargs().get("thinking", False))),
+                 )
+             except TypeError:
+                 text = hf.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+diff --git a/src/r0b0bench/lanes/quality.py b/src/r0b0bench/lanes/quality.py
+index fbb0f12..d8bceee 100644
+--- a/src/r0b0bench/lanes/quality.py
++++ b/src/r0b0bench/lanes/quality.py
+@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
+ from pathlib import Path
+ from typing import Any, Callable
+ 
+-from r0b0bench.config import LaneResult, write_json, wilson_ci
++from r0b0bench.config import LaneResult, chat_template_kwargs, write_json, wilson_ci
+ from r0b0bench.endpoint import Endpoint
+ 
+ 
+@@ -32,7 +32,7 @@ def _chat(ep: Endpoint, prompt: str, max_tokens: int = 512, temperature: float =
+                     "messages": [{"role": "user", "content": prompt}],
+                     "temperature": temperature,
+                     "max_tokens": max_tokens,
+-                    "chat_template_kwargs": {"thinking": False},
++                    "chat_template_kwargs": chat_template_kwargs(),
+                 }
+             )
+             text = ""
+@@ -112,7 +112,7 @@ def run_gsm8k(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+         )
+     n = int(cfg.get("n") or 200)
+     conc = int(cfg.get("concurrency") or 4)
+-    max_tokens = int(cfg.get("max_tokens") or 512)
++    max_tokens = int(cfg.get("max_tokens") or 8192)
+     seed = int(cfg.get("seed") or 0)
+     rows_in = _load_jsonl(data, n=None)
+     # deterministic head for subset (not random) — stable core-subset lock
+@@ -184,7 +184,7 @@ def run_humaneval(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResul
+     )
+     n = int(cfg.get("n") or 164)
+     conc = int(cfg.get("concurrency") or 2)
+-    max_tokens = int(cfg.get("max_tokens") or 512)
++    max_tokens = int(cfg.get("max_tokens") or 8192)
+     rows_in = _load_jsonl(data)[:n]
+     samples = []
+     infra = 0
+@@ -367,7 +367,7 @@ def run_ifeval(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+         )
+     n = int(cfg.get("n") or 200)
+     conc = int(cfg.get("concurrency") or 4)
+-    max_tokens = int(cfg.get("max_tokens") or 1024)
++    max_tokens = int(cfg.get("max_tokens") or 8192)
+     rows_in = _load_jsonl(data)[:n]
+     results = []
+     infra = 0
+@@ -446,7 +446,7 @@ def run_qa(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResult:
+         )
+     n = int(cfg.get("n") or 400)
+     conc = int(cfg.get("concurrency") or 4)
+-    max_tokens = int(cfg.get("max_tokens") or 32)
++    max_tokens = int(cfg.get("max_tokens") or 8192)
+     rows_in = _load_jsonl(data)[:n]
+     results = []
+     infra = 0
+diff --git a/src/r0b0bench/lanes/throughput.py b/src/r0b0bench/lanes/throughput.py
+index 8419265..3a03585 100644
+--- a/src/r0b0bench/lanes/throughput.py
++++ b/src/r0b0bench/lanes/throughput.py
+@@ -5,7 +5,7 @@ import time
+ from pathlib import Path
+ from typing import Any
+ 
+-from r0b0bench.config import LaneResult, write_json
++from r0b0bench.config import LaneResult, chat_template_kwargs, write_json
+ from r0b0bench.endpoint import Endpoint
+ 
+ 
+@@ -15,7 +15,7 @@ def _chat(ep: Endpoint, prompt: str, max_tokens: int) -> dict[str, Any]:
+             "messages": [{"role": "user", "content": prompt}],
+             "temperature": 0,
+             "max_tokens": max_tokens,
+-            "chat_template_kwargs": {"thinking": False},
++            "chat_template_kwargs": chat_template_kwargs(),
+         }
+     )
+     usage = body.get("usage") or {}
+@@ -41,11 +41,11 @@ def run_throughput(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResu
+     """
+     t0 = time.perf_counter()
+     out_dir.mkdir(parents=True, exist_ok=True)
+-    decode_out = int(cfg.get("decode_output_tokens") or 2048)
++    decode_out = int(cfg.get("decode_output_tokens") or 8192)
+     decode_reps = int(cfg.get("decode_reps") or 5)
+     drop_first = bool(cfg.get("drop_first_rep", True))
+     prefill_target_tokens = int(cfg.get("prefill_prompt_tokens") or 14000)
+-    prefill_out = int(cfg.get("prefill_output_tokens") or 16)
++    prefill_out = int(cfg.get("prefill_output_tokens") or 8192)
+     prefill_reps = int(cfg.get("prefill_reps") or 3)
+ 
+     decode_prompt = str(
+@@ -65,13 +65,15 @@ def run_throughput(ep: Endpoint, out_dir: Path, cfg: dict[str, Any]) -> LaneResu
+ 
+     decode_rows = []
+     for rep in range(1, decode_reps + 1):
+-        row = {"rep": rep, "kind": "decode", **_chat(ep, decode_prompt, decode_out)}
++        rep_prompt = f"[r0b0bench-throughput-decode-rep-{rep}] {decode_prompt}"
++        row = {"rep": rep, "kind": "decode", **_chat(ep, rep_prompt, decode_out)}
+         decode_rows.append(row)
+         write_json(out_dir / f"decode-r{rep}.json", row)
+ 
+     prefill_rows = []
+     for rep in range(1, prefill_reps + 1):
+-        row = {"rep": rep, "kind": "prefill", **_chat(ep, prefill_prompt, prefill_out)}
++        rep_prompt = f"[r0b0bench-throughput-prefill-rep-{rep}] {prefill_prompt}"
++        row = {"rep": rep, "kind": "prefill", **_chat(ep, rep_prompt, prefill_out)}
+         prefill_rows.append(row)
+         write_json(out_dir / f"prefill-r{rep}.json", row)
+ 
+diff --git a/src/r0b0bench/profiles/_systems_block.yaml b/src/r0b0bench/profiles/_systems_block.yaml
+index 6c0bf20..0ed5994 100644
+--- a/src/r0b0bench/profiles/_systems_block.yaml
++++ b/src/r0b0bench/profiles/_systems_block.yaml
+@@ -11,7 +11,7 @@ lanes:
+ 
+ canary:
+   temperature: 0
+-  max_tokens_default: 256
++  max_tokens_default: 8192
+ 
+ bfcl_mt:
+   package: bfcl-eval==2025.12.17
+@@ -30,21 +30,21 @@ bfcl_ast:
+ latency:
+   reps: 5
+   drop_first_rep: true
+-  output_tokens: 128
++  output_tokens: 8192
+   temperature: 0
+ 
+ concurrency:
+   levels: [1, 2, 4, 6]
+   reps: 3
+   drop_first_rep: true
+-  output_tokens: 512
++  output_tokens: 8192
+   temperature: 0
+ 
+ throughput:
+-  decode_output_tokens: 2048
++  decode_output_tokens: 8192
+   decode_reps: 5
+   prefill_prompt_tokens: 14000
+-  prefill_output_tokens: 16
++  prefill_output_tokens: 8192
+   prefill_reps: 3
+   drop_first_rep: true
+ 
+@@ -53,12 +53,12 @@ perf:
+   mode: full
+   latency:
+     reps: 5
+-    output_tokens: 128
++    output_tokens: 8192
+   concurrency:
+     levels: [1, 2, 4, 6]
+-    output_tokens: 512
++    output_tokens: 8192
+   throughput:
+-    decode_output_tokens: 2048
++    decode_output_tokens: 8192
+     decode_reps: 5
+     prefill_prompt_tokens: 14000
+     prefill_reps: 3
+@@ -67,7 +67,7 @@ perf:
+ niah:
+   depth_policy: frac_of_max_context
+   fractions: [0.25, 0.50, 0.90]
+-  generation_reserve: 256
++  generation_reserve: 8192
+   needle_fraction: 0.5
+   request_timeout_s: 7200
+   stop_on_infra_error: true
+diff --git a/src/r0b0bench/profiles/core_subset.yaml b/src/r0b0bench/profiles/core_subset.yaml
+index 22b08f2..e3c0e2c 100644
+--- a/src/r0b0bench/profiles/core_subset.yaml
++++ b/src/r0b0bench/profiles/core_subset.yaml
+@@ -9,25 +9,25 @@ quality:
+     population_n: 2376
+     dataset: allenai/ai2_arc ARC-Easy test
+     concurrency: 2
+-    max_tokens: 32
++    max_tokens: 32768
+   ifeval:
+     mode: subset
+     n: 200
+     population_n: 541
+     concurrency: 2
+-    max_tokens: 1024
++    max_tokens: 32768
+     note: lightweight constraint scorer (not full official IFEval package)
+   humaneval:
+     mode: full
+     n: 164
+     concurrency: 2
+-    max_tokens: 512
++    max_tokens: 32768
+   gsm8k:
+     mode: subset
+     n: 200
+     population_n: 1319
+     concurrency: 2
+-    max_tokens: 512
++    max_tokens: 49152
+     note: 0-shot flexible-extract
+ lane_order:
+   - systems  # canary, bfcl_mt, bfcl_ast, latency, concurrency, throughput, niah

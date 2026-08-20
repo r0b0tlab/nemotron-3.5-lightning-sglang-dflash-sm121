@@ -1,0 +1,41 @@
+{
+  "gsm8k": {
+    "completion_tokens_total": 334040,
+    "e2e_tok_s_mean": 76.74,
+    "e2e_tok_s_median": 76.91,
+    "e2e_tok_s_total": 75.64,
+    "error_rows": 0,
+    "estimated_tokens": false,
+    "mean_latency_s": 22.08,
+    "median_latency_s": 8.15,
+    "n_rows": 200,
+    "source": "lanes/gsm8k/gsm8k.json",
+    "wall_s_total": 4416.13
+  },
+  "ifeval": {
+    "completion_tokens_total": 33798,
+    "e2e_tok_s_mean": 4.91,
+    "e2e_tok_s_median": 4.0,
+    "e2e_tok_s_total": 2.86,
+    "error_rows": 0,
+    "estimated_tokens": true,
+    "mean_latency_s": 58.99,
+    "median_latency_s": 33.53,
+    "n_rows": 200,
+    "source": "lanes/ifeval/ifeval.json",
+    "wall_s_total": 11798.18
+  },
+  "qa": {
+    "completion_tokens_total": 0,
+    "e2e_tok_s_mean": null,
+    "e2e_tok_s_median": null,
+    "e2e_tok_s_total": null,
+    "error_rows": 0,
+    "estimated_tokens": true,
+    "mean_latency_s": 6.9,
+    "median_latency_s": 5.64,
+    "n_rows": 400,
+    "source": "lanes/qa/qa.json",
+    "wall_s_total": 2759.73
+  }
+}

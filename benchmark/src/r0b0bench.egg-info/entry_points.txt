@@ -1,0 +1,2 @@
+[console_scripts]
+r0b0bench = r0b0bench.cli:main

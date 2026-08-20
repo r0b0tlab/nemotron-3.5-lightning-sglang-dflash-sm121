@@ -1,0 +1,86 @@
+{
+  "mode": "c1_ignore_eos",
+  "max_tokens": 2048,
+  "reps": 5,
+  "tok_s_median": 69.03,
+  "tok_s_mean": 69.09,
+  "tok_s_min": 68.89,
+  "tok_s_max": 69.32,
+  "rows": [
+    {
+      "rep": 1,
+      "wall_s": 29.55,
+      "out_tokens": 2048,
+      "tok_s": 69.32,
+      "finish_reason": "length",
+      "spec_before": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      },
+      "spec_after": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      }
+    },
+    {
+      "rep": 2,
+      "wall_s": 29.57,
+      "out_tokens": 2048,
+      "tok_s": 69.25,
+      "finish_reason": "length",
+      "spec_before": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      },
+      "spec_after": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      }
+    },
+    {
+      "rep": 3,
+      "wall_s": 29.67,
+      "out_tokens": 2048,
+      "tok_s": 69.03,
+      "finish_reason": "length",
+      "spec_before": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      },
+      "spec_after": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      }
+    },
+    {
+      "rep": 4,
+      "wall_s": 29.69,
+      "out_tokens": 2048,
+      "tok_s": 68.98,
+      "finish_reason": "length",
+      "spec_before": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      },
+      "spec_after": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      }
+    },
+    {
+      "rep": 5,
+      "wall_s": 29.73,
+      "out_tokens": 2048,
+      "tok_s": 68.89,
+      "finish_reason": "length",
+      "spec_before": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      },
+      "spec_after": {
+        "spec_accept_length": 0.0,
+        "spec_accept_rate": 0.0
+      }
+    }
+  ]
+}

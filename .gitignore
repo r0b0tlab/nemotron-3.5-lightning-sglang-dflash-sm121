@@ -1,0 +1,29 @@
+# Private model/runtime material
+model-assets/
+weights/
+*.safetensors
+*.safetensors.index.json
+.env
+*.key
+*.token
+*credentials*
+*secret*
+
+# Runtime/build caches and logs
+.cache/
+.venv/
+logs/
+out/
+run/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.so
+*.o
+*.a
+
+# Local benchmark outputs and raw traces
+results/raw/
+results/local/
+*.log
+.hermes/
