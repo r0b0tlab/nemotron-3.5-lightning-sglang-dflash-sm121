@@ -27,8 +27,9 @@ Expected end state: `wait_ready.sh` reports READY, `/v1/models` shows
 `max_model_len 50016`, canary prints the correct arithmetic result, and the
 server keeps serving on http://127.0.0.1:30000/v1.
 
-Manual launch: `IMAGE=<pinned image> bash runtime/launch.sh production` (see
-`runtime/launch.sh`), or run the released container image directly
+Manual launch: `IMAGE=<pinned image> MODEL_DIR=<target dir> DRAFT_DIR=<draft dir>
+bash scripts/serve.sh production` (see `runtime/entrypoint.sh` for the container's
+frozen serve profile), or run the released container image directly
 (`PROFILE=production`, mounts `/models/target` + `/models/draft`).
 
 ## Serve profiles
@@ -121,7 +122,8 @@ vLLM package (`r0b0tlab/nemotron-3.5-lightning-sm121-nvfp4`), the SGLang
 MTP/EAGLE package (`r0b0tlab/nemotron-3.5-lightning-sglang-sm121`), the Atlas
 engine, or any other model family — do not reuse those numbers here.
 No model weights, datasets, credentials, or raw BFCL traces are stored in
-this repository. See `docs/AGENTS.md` for the working boundary.
+this repository. See `PICKUP.md` for the campaign state and
+`docs/ADMISSION-BLOCKER.md` for the admission notes.
 
 ## License
 
